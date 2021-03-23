@@ -1,0 +1,159 @@
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js">    </script>
+
+     
+<style>
+	body {
+		font-family: helvetica;
+	}
+	
+	p {
+		font-weight: bold;
+	}
+</style>
+
+	
+<body>
+	<h2>URL CREATOR</i></h2>
+	
+	
+	
+	<div id="input-json">
+		<p id="link-xml">Colocar aqui o link da página</p>
+		<input type="text" id="link-field" style="width: 750px;"></input>
+	</div>
+	
+	
+	<div id="input-json">
+		<p id="link-xml">Colocar aqui a rede social</p>
+	</div>
+	
+	<select name="source" id="source">
+		<option value="instagram">Instagram</option>
+		<option value="facebook">Facebook</option>
+		<option value="linkedin">Linkedin</option>
+	</select>
+	
+	<div id="input-json">
+		<p id="link-xml">Colocar aqui o tipo de post</p>
+	</div>
+	
+	<select name="medium" id="medium">
+		<option value="stories">Stories</option>
+		<option value="feed">Feed</option>
+		<option value="cpc">Anúncio</option>
+	</select>
+	
+	<div id="input-json">
+		<p id="link-xml">Colocar aqui o tipo de post</p>
+	</div>
+	
+	<select name="campaign" id="campaign">
+		<option value="joias">Joias</option>
+		<option value="adega">Adega</option>
+	</select>
+	
+	<div id="input-json">
+		<p id="link-xml">Como você quer identificar esse post? (Ex: Stories Sale)</p>
+		<input type="text" id="name-field" style="width: 750px;"></input>
+	</div>
+
+	
+	<div id="input-json">
+		<p id="link-xml">Qual vai ser a data do post?</p>
+	</div>
+	<input type="date" id="datePicker" name="start"
+	>
+	
+
+		<hr>
+		<br>
+	<button class="get-refs">CRIAR LINK</button>
+	<hr>
+	
+	<hr>
+	<p>LINK FINAL (usar esse link no post)</p>
+	<div class="html-area" style="width: 1000px">
+		<input type="text" id="html-field" style="width: 750px;"></input>
+	</div>
+</body>
+
+<!--SCRIPT-->
+
+<script>
+
+Date.prototype.toDateInputValue = (function() {
+    var local = new Date(this);
+    local.setMinutes(this.getMinutes() - this.getTimezoneOffset());
+    return local.toJSON().slice(0,10);
+});
+document.getElementById('datePicker').value = new Date().toDateInputValue();
+
+function createUrl(url, source, medium, campaign, content) {
+utms = [
+    'utm_source=' + document.getElementById('source').value,
+    'utm_medium=' + document.getElementById('medium').value,
+    'utm_campaign=' + document.getElementById('campaign').value,
+    'utm_content=' + date + '-' + document.getElementById('name-field').value.toLowerCase().replace(' ', '-')
+    ]
+utmStr = utms.join('&')
+    if (!url.includes('?')){ utmStr = '?' + utmStr}
+    if (url.includes('?') || url.includes('&')){ utmStr = '&' + utmStr}
+     return url + utmStr
+}
+
+
+var bitlyResponse = '';
+var xhr = new XMLHttpRequest();
+xhr.open("POST", "https://api-ssl.bitly.com/v4/shorten", true);
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.setRequestHeader('Authorization', 'Bearer d803faf995b89bdec4476d8355d60aaac9c3f268');
+xhr.onreadystatechange = function() {
+	if (xhr.readyState == XMLHttpRequest.DONE) {
+		bitlyResponse = xhr.responseText;
+		bitly = JSON.parse(bitlyResponse)['link'];
+		console.log(JSON.parse(bitlyResponse));
+		document.getElementById('html-field').value = bitly;
+		
+		patchUrl = '/custom_bitlinks/' + bitly;
+	}
+}
+
+$(".get-refs").on("click", function() {
+	url = document.getElementById('link-field').value;
+	source =  document.getElementById('source').value;
+	medium = document.getElementById('medium').value;
+	campaign = document.getElementById('campaign').value;
+	dateSplit = document.getElementById('datePicker').value.split('-');
+	date = dateSplit[2] + '-' + dateSplit[1] + '-' + dateSplit[0];
+	content = date + '-' + document.getElementById('name-field').value.toLowerCase().replace(' ', '-');
+
+	document.getElementById('html-field').value = createUrl(url, source, medium, campaign, content);
+
+
+	//var finalLink = '';
+	//var link = document.getElementById('link-field').value;
+	//var name = document.getElementById('name-field').value;
+	//var shortName = name.toLowerCase().replace(' ','');
+	//if (link.includes('?')) {
+	//	finalLink = link + "&utm_source=" + shortName
+	//} else {
+	//	finalLink = link + "?utm_source=" + shortName
+	//}
+	
+	//date = new Date();
+	//day = date.getDate();
+	//mon = date.getMonth()+1;
+	
+
+	//xhr.send(JSON.stringify({
+    //    "group_guid": "Bi1me8FC5Px",
+	//	"domain": "bit.ly",  
+	//	"long_url": finalLink,
+	//	"title": name + ' - ' + day + '/' + mon
+	//}  ));
+
+});
+
+
+</script>
